@@ -1,3 +1,5 @@
+import pytest
+
 from main import BooksCollector
 
 # класс TestBooksCollector объединяет набор тестов, которыми мы покрываем наше приложение BooksCollector
@@ -22,3 +24,26 @@ class TestBooksCollector:
 
     # напиши свои тесты ниже
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
+
+    def test_add_new_book_with_too_long_and_too_short_names_no_books(self):
+        # создаем экземпляр (объект) класса BooksCollector
+        collector = BooksCollector()
+
+        # добавляем две книгу с пустым именем
+        collector.add_new_book('')
+
+        # добавляем книгу с очень длинным именем
+        collector.add_new_book('Книга' * 10)
+
+        # проверяем, что книги не добавились в словарь
+        assert len(collector.books_genre.keys()) == 0
+
+    def test_add_new_book_with_the_same_name_one_book(self):
+        # создаем экземпляр (объект) класса BooksCollector
+        collector = BooksCollector()
+        book = "Облачный Атлас"
+        for _ in range(3):
+            # добавляем книгу
+            collector.add_new_book(book)
+            # проверяем, что книга только одна
+            assert len(collector.books_genre.keys()) == 1
