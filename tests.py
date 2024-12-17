@@ -10,7 +10,7 @@ class TestBooksCollector:
     # обязательно указывать префикс test_
     # дальше идет название метода, который тестируем add_new_book_
     # затем, что тестируем add_two_books - добавление двух книг
-    def test_add_new_book_add_two_books(self):
+    def test_add_new_book_add_two_books_two_books(self):
         # создаем экземпляр (объект) класса BooksCollector
         collector = BooksCollector()
 
@@ -25,7 +25,7 @@ class TestBooksCollector:
     # напиши свои тесты ниже
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
 
-    def test_add_new_book_with_too_long_and_too_short_names_no_books(self):
+    def test_add_new_book_add_too_long_and_too_short_names_no_books(self):
         # создаем экземпляр (объект) класса BooksCollector
         collector = BooksCollector()
 
@@ -38,7 +38,7 @@ class TestBooksCollector:
         # проверяем, что книги не добавились в словарь
         assert len(collector.books_genre.keys()) == 0
 
-    def test_add_new_book_with_the_same_name_one_book(self):
+    def test_add_new_book_add_same_name_twice_one_book(self):
         # создаем экземпляр (объект) класса BooksCollector
         collector = BooksCollector()
         book = "Облачный Атлас"
