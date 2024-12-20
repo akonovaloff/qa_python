@@ -14,9 +14,9 @@ class TestBooksCollector:
     def collector(self):
         return self.collector
 
-    def add_correct_book(self, prefix: str = "Книга") -> str:
+    def add_correct_book(self, prefix: str = "Book") -> str:
         if not 0 < len(prefix) < 41:
-            prefix = "Книга"
+            prefix = "Book"
         correct_book = f"{prefix}_{len(self.collector.books_genre) + 1}"
         self.collector.add_new_book(correct_book)
         return correct_book
@@ -25,16 +25,22 @@ class TestBooksCollector:
         "book_list, books_counter",
         [
             # Добавляем две книги с корректными названиями, должны добавиться обе
-            (["Гордость и предубеждение и зомби", "Что делать, если ваш кот хочет вас убить"], 2),
+            (["Гордость и предубеждение и зомби",
+              "Что делать, если ваш кот хочет вас убить",
+              "Облачный Атлас"],
+             3),
 
             # Добавляем две книги с не корректными названиями, они не должны добавиться
-            (["", "Книга" * 10], 0),
+            (["",
+              "Книга" * 10],
+             0),
 
             # Дважды добавляем книгу с корректным названием, должна добавиться только одна
-            (["Облачный Атлас", "Облачный Атлас"], 1),
+            (["Облачный Атлас",
+              "Облачный Атлас"], 1),
         ]
     )
-    def test_add_new_book_correct_count(self, collector, book_list, books_counter):
+    def test_add_new_book_correct_counter(self, collector, book_list, books_counter):
         # добавляем две книги
         for book in book_list:
             collector.add_new_book(book)
@@ -46,50 +52,64 @@ class TestBooksCollector:
         assert all(genre == '' for genre in collector.get_books_genre().values())
 
     @pytest.mark.parametrize(
-        "books_and_genre, is_genre_correct",
+        "genre, is_genre_correct",
 
         [  # книги с корректным жанром должны корректно добавиться в словарь
-            ({"Книга с корректным жанром 1": "Ужасы",
-              "Книга с корректным жанром 2": "Детективы",
-              "Книга с корректным жанром 3": "Мультфильмы"}, True),
-
+            ("Ужасы",       True),
+            ("Детективы",   True),
+            ("Мультфильмы", True),
             # книги с некорректным жанром должны добавиться в словарь,
             # но их жанр должен быть задан пустой строкой
-            ({"Книга с некорректным жанром 1": "Ужосы",
-              "Книга с некорректным жанром 2": 99,
-              "Книга с некорректным жанром 3": False}, False)
+            ("Ужосы",   False),
+            (99,        False),
+            (False,     False)
         ])
-    def test_set_book_genre(self, collector, books_and_genre, is_genre_correct):
+    def test_set_book_genre(self, collector, genre, is_genre_correct):
         # добавляем новые книги, задаём жанры
-        for book, genre in books_and_genre.items():
-            collector.add_new_book(book)
+        book = self.add_correct_book()
+        collector.set_book_genre(book, genre)
+
+        # если по условию теста жанр не корректный (is_genre_correct == False),
+        # то в словаре books_genre жанр должен быть пустой строкой
+        if not is_genre_correct:
+            genre = ""
+
+        # проверяем значение жанра в словаре
+        assert collector.books_genre[book] == genre
+
+    def test_get_book_genre(self, collector):
+        # добавляем новые книги, задаём жанры
+        for genre in collector.genre:
+            book = self.add_correct_book()
             collector.set_book_genre(book, genre)
+            assert collector.get_book_genre(book) == genre
 
-            # если по условию теста жанр не корректный (is_genre_correct == False),
-            # то в словаре books_genre жанр должен быть пустой строкой
-            if not is_genre_correct:
-                genre = ""
+        for genre in ["Ужосы", "", 99, 0, False, True]:
+            book = self.add_correct_book()
+            collector.set_book_genre(book, genre)
+            assert collector.get_book_genre(book) == ""
 
-            # проверяем значение жанра в словаре
-            assert collector.books_genre[book] == genre
-
-    def test_get_books_with_specific_genre(self, collector):
-        # задаём жанр и число экземпляров жанра
-        specific_genre, specific_counter = "Фантастика", 3
-
-        # наполняем словарь указанным числом экземпляров книг выбранного жанра
-        # и сохраняем имена добавленных книг для будущей проверки
+    @pytest.mark.parametrize("specific_genre",
+                             ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии'])
+    def test_get_books_with_specific_genre(self, collector, specific_genre):
+        # задаём число книг выбранного жанра
+        specific_counter = 3
+        # создаем пустой список книг для будущей проверки
         book_with_specific_genre = []
+        # наполняем словарь книгами выбранного жанра
         for i in range(specific_counter):
+            # добавляем книгу
             book = self.add_correct_book(specific_genre)
+            # сохраняем имя книги для будущей проверки
             book_with_specific_genre.append(book)
+            # задаём книге жанр
             collector.set_book_genre(book, specific_genre)
 
-        # проверяем, что добавлено указанное число книг
+        # проверяем, что число книг в словаре и проверочном списке совпадает с указанным
         # так же эта строка проверяет работу функции self.add_correct_book()
         assert len(collector.books_genre) == len(book_with_specific_genre) == specific_counter
 
-        # добавляем по одной книге всех оставшихся жанров
+        # добавляем в словарь по одной книге всех оставшихся жанров
         for genre in collector.genre:
             if genre != specific_genre:
                 book = self.add_correct_book(genre)
@@ -98,3 +118,26 @@ class TestBooksCollector:
         # проверяем, что метод get_books_with_specific_genre
         # вернёт только книги выбранного жанра
         assert collector.get_books_with_specific_genre(specific_genre) == book_with_specific_genre
+
+    def test_get_books_with_specific_genre_empty_books_genre(self, collector):
+        # для пустого словаря метод должен вернуть пустой список
+        assert collector.get_books_with_specific_genre("Детективы") == []
+
+    def test_get_books_with_specific_genre_empty_genre(self, collector):
+        # добавляем книгу и указываем жанр
+        book = self.add_correct_book()
+        collector.set_book_genre(book, "Детективы")
+        # проверяем, что при запросе книг некорректного жанра
+        # из непустого словаря возвращается пустой список
+        assert collector.get_books_with_specific_genre("") == []
+
+    def test_get_books_for_children_two_books(self, collector):
+        books_for_children = []
+        for genre in collector.genre:
+            book = self.add_correct_book()
+            collector.set_book_genre(book, genre)
+            if genre not in collector.genre_age_rating:
+                books_for_children.append(book)
+
+        assert collector.get_books_for_children() == books_for_children
+
