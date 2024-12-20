@@ -79,15 +79,13 @@ class TestBooksCollector:
 
     def test_get_book_genre_correct_genre(self, collector):
         # добавляем новые книги, задаём жанры
-        for genre in collector.genre:
+        for genre in collector.genre + ["Ужосы", "", 99, 0, False, True]:
             book = self.add_correct_book()
             collector.set_book_genre(book, genre)
+            if len(collector.books_genre.keys()) > len(collector.genre):
+                genre = ""
             assert collector.get_book_genre(book) == genre
 
-        for genre in ["Ужосы", "", 99, 0, False, True]:
-            book = self.add_correct_book()
-            collector.set_book_genre(book, genre)
-            assert collector.get_book_genre(book) == ""
 
     @pytest.mark.parametrize("specific_genre",
                              ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии'])
