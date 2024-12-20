@@ -64,7 +64,7 @@ class TestBooksCollector:
             (99,        False),
             (False,     False)
         ])
-    def test_set_book_genre(self, collector, genre, is_genre_correct):
+    def test_set_book_genre_correct_genre(self, collector, genre, is_genre_correct):
         # добавляем новые книги, задаём жанры
         book = self.add_correct_book()
         collector.set_book_genre(book, genre)
@@ -77,7 +77,7 @@ class TestBooksCollector:
         # проверяем значение жанра в словаре
         assert collector.books_genre[book] == genre
 
-    def test_get_book_genre(self, collector):
+    def test_get_book_genre_correct_genre(self, collector):
         # добавляем новые книги, задаём жанры
         for genre in collector.genre:
             book = self.add_correct_book()
@@ -91,7 +91,7 @@ class TestBooksCollector:
 
     @pytest.mark.parametrize("specific_genre",
                              ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии'])
-    def test_get_books_with_specific_genre(self, collector, specific_genre):
+    def test_get_books_with_specific_genre_correct_books(self, collector, specific_genre):
         # задаём число книг выбранного жанра
         specific_counter = 3
         # создаем пустой список книг для будущей проверки
@@ -141,3 +141,43 @@ class TestBooksCollector:
 
         assert collector.get_books_for_children() == books_for_children
 
+    def test_get_list_of_favorites_books_empty_favorite_list(self, collector):
+        # проверяем что метод вернет пустой список для пустого словаря
+        assert collector.get_list_of_favorites_books() == []
+
+        # проверяем что метод вернет пустой список для не пустого словаря
+        book = self.add_correct_book()
+        assert collector.get_list_of_favorites_books() == []
+        # проверяем, что метод вернёт пустой список, если добавить в избранное
+        # не добавленную в словарь книгу
+        collector.add_book_in_favorites(book + book)
+        assert collector.get_list_of_favorites_books() == []
+
+    def test_get_list_of_favorites_books_four_books(self, collector):
+        favorites_books = []
+        # добавляем в словарь 8 книг
+        for i in (1, 2, 3, 4, 5, 6, 7, 8):
+            book = self.add_correct_book()
+            # четные книги добавляем в избранное
+            if i in (2, 4, 6, 8):
+                collector.add_book_in_favorites(book)
+                favorites_books.append(book)
+
+        assert collector.get_list_of_favorites_books() == favorites_books
+
+        # проверяем, что список избранного не изменится, если добавить в него
+        # одну книгу дважды
+        collector.add_book_in_favorites(book)
+        assert collector.get_list_of_favorites_books() == favorites_books
+
+    def test_delete_book_from_favorites_three_books(self, collector):
+        favorite_books = []
+        for i in (1, 2, 3, 4):
+            book = self.add_correct_book()
+            collector.add_book_in_favorites(book)
+            favorite_books.append(book)
+        assert favorite_books == collector.get_list_of_favorites_books()
+        collector.delete_book_from_favorites(book + book)
+        assert favorite_books == collector.get_list_of_favorites_books()
+        collector.delete_book_from_favorites(book)
+        assert book not in collector.get_list_of_favorites_books()
