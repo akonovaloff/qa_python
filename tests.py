@@ -40,6 +40,7 @@ class TestBooksCollector:
               "Облачный Атлас"], 1),
         ]
     )
+    # test 1
     def test_add_new_book_correct_counter(self, collector, book_list, books_counter):
         # добавляем две книги
         for book in book_list:
@@ -55,15 +56,16 @@ class TestBooksCollector:
         "genre, is_genre_correct",
 
         [  # книги с корректным жанром должны корректно добавиться в словарь
-            ("Ужасы",       True),
-            ("Детективы",   True),
+            ("Ужасы", True),
+            ("Детективы", True),
             ("Мультфильмы", True),
             # книги с некорректным жанром должны добавиться в словарь,
             # но их жанр должен быть задан пустой строкой
-            ("Ужосы",   False),
-            (99,        False),
-            (False,     False)
+            ("Ужосы", False),
+            (99, False),
+            (False, False)
         ])
+    # test 2
     def test_set_book_genre_correct_genre(self, collector, genre, is_genre_correct):
         # добавляем новые книги, задаём жанры
         book = self.add_correct_book()
@@ -77,6 +79,7 @@ class TestBooksCollector:
         # проверяем значение жанра в словаре
         assert collector.books_genre[book] == genre
 
+    # test 3
     def test_get_book_genre_correct_genre(self, collector):
         # добавляем новые книги, задаём жанры
         for genre in collector.genre + ["Ужосы", "", 99, 0, False, True]:
@@ -86,9 +89,9 @@ class TestBooksCollector:
                 genre = ""
             assert collector.get_book_genre(book) == genre
 
-
     @pytest.mark.parametrize("specific_genre",
                              ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии'])
+    # test 4
     def test_get_books_with_specific_genre_correct_books(self, collector, specific_genre):
         # задаём число книг выбранного жанра
         specific_counter = 3
@@ -117,10 +120,12 @@ class TestBooksCollector:
         # вернёт только книги выбранного жанра
         assert collector.get_books_with_specific_genre(specific_genre) == book_with_specific_genre
 
+    # test 5
     def test_get_books_with_specific_genre_empty_books_genre(self, collector):
         # для пустого словаря метод должен вернуть пустой список
         assert collector.get_books_with_specific_genre("Детективы") == []
 
+    # test 6
     def test_get_books_with_specific_genre_empty_genre(self, collector):
         # добавляем книгу и указываем жанр
         book = self.add_correct_book()
@@ -129,16 +134,21 @@ class TestBooksCollector:
         # из непустого словаря возвращается пустой список
         assert collector.get_books_with_specific_genre("") == []
 
-    def test_get_books_for_children_two_books(self, collector):
+    # test 7
+    def test_get_books_for_children_correct_book_for_each_children_genres(self, collector):
+        # создаем пустой список для дальнейшей проверки
         books_for_children = []
+        # добавляем по одной книге каждого жанра
         for genre in collector.genre:
             book = self.add_correct_book()
             collector.set_book_genre(book, genre)
+            # сохраняем детские книги в список для проверки
             if genre not in collector.genre_age_rating:
                 books_for_children.append(book)
-
+        # проверяем, что итоговый и проверочный списки совпадают
         assert collector.get_books_for_children() == books_for_children
 
+    # test 8
     def test_get_list_of_favorites_books_empty_favorite_list(self, collector):
         # проверяем что метод вернет пустой список для пустого словаря
         assert collector.get_list_of_favorites_books() == []
@@ -151,6 +161,7 @@ class TestBooksCollector:
         collector.add_book_in_favorites(book + book)
         assert collector.get_list_of_favorites_books() == []
 
+    # test 9
     def test_get_list_of_favorites_books_four_books(self, collector):
         favorites_books = []
         # добавляем в словарь 8 книг
@@ -168,9 +179,10 @@ class TestBooksCollector:
         collector.add_book_in_favorites(book)
         assert collector.get_list_of_favorites_books() == favorites_books
 
+    # test 10
     def test_delete_book_from_favorites_three_books(self, collector):
         favorite_books = []
-        for i in (1, 2, 3, 4):
+        for _ in (1, 2, 3, 4):
             book = self.add_correct_book()
             collector.add_book_in_favorites(book)
             favorite_books.append(book)
